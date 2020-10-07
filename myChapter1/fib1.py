@@ -26,7 +26,7 @@ def fib3(n: int) -> int:
 
 if __name__ == "__main__":
     # print(fib1(int(sys.argv[1])))
-    print(fib1(int(sys.argv[1])))
+    print(fib1(int(5)))
 
 
     print("=======================")
