@@ -1,6 +1,7 @@
 import sys
 from typing import Dict, Generator
 from functools import lru_cache
+from datetime import datetime
 
 gcount_fib1 = 0
 gcount_fib3 = 0
@@ -72,19 +73,33 @@ def fib6(n: int) -> Generator[int, None, None]:
         last, next = next, last + next
         gcount_fib6 += 1
         print("fib6(%d): %d" %(gcount_fib6+1,next))
-
-        yield next
+        return next
+        # yield next
 
 
 if __name__ == "__main__":
+    start_time = datetime.now()
     print("fib1(20):  ", fib1(int(20)))
+    print("耗时: {}".format((datetime.now()-start_time).total_seconds()))
     print("=======================")
-    print("fib3: ",fib3(int(sys.argv[1])))
-    print("fib4 ",fib4(int(sys.argv[1])))
-    print("fib5 ",fib5(int(sys.argv[1])))
-    # print("fib6 ",fib6(int(sys.argv[1])))
+    start_time = datetime.now()
 
-    for i in fib6(int(sys.argv[1])):
-        # print("fib6:", i)
-        pass
+    print("fib3: ",fib3(int(sys.argv[1])))
+    print("耗时: {}".format((datetime.now()-start_time).total_seconds()))
+    start_time = datetime.now()
+
+    print("fib4 ",fib4(int(sys.argv[1])))
+    print("耗时: {}".format((datetime.now()-start_time).total_seconds()))
+    start_time = datetime.now()
+
+    print("fib5 ",fib5(int(sys.argv[1])))
+    print("耗时: {}".format((datetime.now()-start_time).total_seconds()))
+    start_time = datetime.now()
+
+    print("fib6 ",fib6(int(sys.argv[1])))
+    print("耗时: {}".format((datetime.now()-start_time).total_seconds()))
+
+    # for i in fib6(int(sys.argv[1])):
+    #     print("fib6:", i)
+        # pass
 
