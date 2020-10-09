@@ -218,7 +218,7 @@ def __str__(self) -> str:  # string representation for pretty printing
     return self.decompress()
 copy
 decompress() 方法每次将从位串中读取两个位，再用这两个位确定要加入基因的 str 尾部的字符。与压缩时的读取顺序不同，解压时位的读取是自后向前进行的（从右到左而不是从左到右），因此最终的 str 要做一次反转（用切片表示法进行反转 [::-1]）。最后请留意一下，int 类型的 bit_length() 方法给 decompress() 的开发带来了很大便利。
-
+```
 if __name__ == "__main__":
     from sys import getsizeof
     original: str = "TAGGGATTAACCGTTATATATATATAGCCATGGATCGATTATATAGGGATTAACCGTTATATATATATAGCCATGGATCGATTATA" * 100
@@ -228,12 +228,37 @@ if __name__ == "__main__":
     print(compressed)  # decompress
     print("original and decompressed are the same: {}".format(original ==
      compressed.decompress()))
-copy
+```
 利用 sys.getsizeof() 方法，输出结果时就能显示出来，通过该压缩方案确实节省了基因数据大约 75% 的内存开销：
-
+```
 original is 8649 bytes
 compressed is 2320 bytes
 TAGGGATTAACC…
 original and decompressed are the same: True
-copy
-注意：在 CompressedGene 类中，为了判断压缩方法和解压方法中的一系列条件，大量采用了 if 语句。因为 Python 没有 switch 语句，所以这种情况有点儿普遍。在 Python 中有时还会出现一种情况，就是高度依靠字典对象来代替大量的 if 语句，以便对一系列的条件做出处理。不妨想象一下，可以用字典对象来找出每个核苷酸对应的二进制位形式。有时字典方案的可读性会更好，但可能会带来一定的性能开销。尽管查找字典在技术上的复杂度为 O(1)，但运行哈希函数存在开销，这有时会意味着字典的性能还不如一串 if。是否采用字典，取决于具体的 if 语句做判断时需要进行什么计算。如果在关键代码段中要在多个 if 和查找字典中做出取舍，或许该分别对这两种方法运行一次性能测试。
+```
+注意：在 CompressedGene 类中，为了判断压缩方法和解压方法中的一系列条件，大量采用了 if 语句。
+因为 Python 没有 switch 语句，所以这种情况有点儿普遍。在 Python 中有时还会出现一种情况，
+就是高度依靠字典对象来代替大量的 if 语句，以便对一系列的条件做出处理。不妨想象一下，可以
+用字典对象来找出每个核苷酸对应的二进制位形式。有时字典方案的可读性会更好，但可能会带来一
+定的性能开销。尽管查找字典在技术上的复杂度为 O(1)，但运行哈希函数存在开销，这有时会意
+味着字典的性能还不如一串 if。是否采用字典，取决于具体的 if 语句做判断时需要进行什么
+计算。如果在关键代码段中要在多个 if 和查找字典中做出取舍，或许该分别对这两种方法
+运行一次性能测试。
+
+
+### 牢不可破的加密方案
+
+一次性密码本（one-time pad）是一种加密数据的方法，它将无意义的随机的假数据（dummy data）混入数据中，
+这样在无法同时拿到加密结果和假数据的情况下就不能重建原始数据。这实质上是给加密程序配上了密钥对。
+其中一个密钥是加密结果，另一个密钥则是随机的假数据。单个密钥是没有用的，只有两个密钥的组合才能解密出原始数据。
+只要运行无误，一次性密码本就是一种无法破解的加密方案。
+
+以下示例将用一次性密码本方案加密一个 srt。Python 3 的 str 类型有一种用法可被视为 UTF-8 字节序列
+（UTF-8 是一种 Unicode 字符编码）。通过 encode() 方法可将 str 转换为 UTF-8 字节序列（以 bytes 类型表示）。
+同理，用 bytes 类型的 decode() 方法可将 UTF-8 字节序列转换回 str。
+
+一次性密码本的加密操作中用到的假数据必须符合 3 条标准，这样最终的结果才不会被破解。假数据必须与原始数据长度相同、真正随机、完全保密。第 1 条标准和第 3 条标准是常识。如果假数据因为太短而出现重复，就有可能被觉察到规律。如果其一个密钥不完全保密（可能在其他地方被重复使用或部分泄露），那么攻击者就能获得一条线索。第 2 条标准给自己出了一道难题：能否生成真正随机的数据？大多数计算机的答案都是否定的。
+
+本例将会用到 secrets 模块的伪随机数据来生成函数 token_ bytes()（自 Python 3.6 开始包含在于标准库中）。这里的数据并非是真正随机的，因为 secrets 包在幕后采用的仍然是伪随机数生成器，但它已足够接近目标了。下面就来生成一个用作假数据的随机密钥：
+
+
