@@ -13,10 +13,10 @@ def fib1(n: int) -> int:
 所谓递归函数是一种调用自己的函数。这次机械的转换将作为你编写函数的首次尝试，返回的是斐波那契序列中的给定数。
 
 下面试着带上参数值来调用这个函数。
-
+```Python
 if __name__ == "__main__":
     print(fib1(5))
-copy
+```
 若我们运行 fib1.py，系统就会生成一条错误消息：
 
 RecursionError: maximum recursion depth exceeded
@@ -29,20 +29,20 @@ copy
 请注意，在运行 fib1() 之前，Python 运行环境不会有任何提示有错误存在。避免无限递归由程序员负责，而不由编译器或解释器负责。出现无限递归的原因是尚未指定基线条件（base case）。在递归函数中，基线条件即函数终止运行的时点。
 
 就斐波那契函数而言，天然存在两个基线条件，其形式就是序列最开始的两个特殊数字 0 和 1。0 和 1 都不是由序列的前两个数求和得来的，而是序列最开始的两个特殊数字。那就试着将其设为基线条件吧，具体代码如下：
-
+```Python
 def fib2(n: int) -> int:
     if n < 2:  # base case
         return n
     return fib2(n - 2) + fib2(n - 1)  # recursive case
-copy
+```
 注意：斐波那契函数的 fib2() 版本将返回 0 作为第 0 个数 （fib2(0)），而不是第一个数，这正符合我们的本意。这在编程时很有意义，因为大家已经习惯了序列从第 0 个元素开始。
 
 fib2() 能被调用成功并将返回正确的结果。可以用几个较小的数试着调用一下：
-
+```Python
 if __name__ == "__main__":
     print(fib2(5))
     print(fib2(10))
-copy
+```
 请勿尝试调用 fib2(50)，因为它永远不会终止运行！每次调用 fib2() 都会再调用两次 fib2()，方式就是递归调用 fib2(n - 1) 和 fib2(n - 2)（如图 1-3 所示）。换句话说，这种树状调用结构将呈指数级增长。例如，调用 fib2(4) 将产生如下一整套调用：
 
 fib2(4) -> fib2(3), fib2(2)
@@ -198,7 +198,7 @@ _compress() 方法将会遍历核苷酸 str 中的每一个字符。遇到 A 就
 添加每个核苷酸都是用“或”（|）操作进行的。当左移操作完成后，位串的右侧会加入两个 0。在位运算过程中，0 与其他任何值执行“或”操作（如 self.bit_string | = 0b10）的结果都是把 0 替换为该值。换句话说，就是在位串的右侧不断加入两个新的二进制位。加入的两个位的值将视核苷酸的类型而定。
 
 下面来实现解压方法和调用它的特殊方法 __str__()：
-
+```python
 def decompress(self) -> str:
     gene: str = ""
     for i in range(0, self.bit_string.bit_length() - 1, 2):  # -1 to exclude sentinel
@@ -216,9 +216,9 @@ def decompress(self) -> str:
     return gene[::-1]  # [::-1] reverses string by slicing backward
 def __str__(self) -> str:  # string representation for pretty printing
     return self.decompress()
-copy
+```
 decompress() 方法每次将从位串中读取两个位，再用这两个位确定要加入基因的 str 尾部的字符。与压缩时的读取顺序不同，解压时位的读取是自后向前进行的（从右到左而不是从左到右），因此最终的 str 要做一次反转（用切片表示法进行反转 [::-1]）。最后请留意一下，int 类型的 bit_length() 方法给 decompress() 的开发带来了很大便利。
-
+```
 if __name__ == "__main__":
     from sys import getsizeof
     original: str = "TAGGGATTAACCGTTATATATATATAGCCATGGATCGATTATATAGGGATTAACCGTTATATATATATAGCCATGGATCGATTATA" * 100
@@ -228,12 +228,81 @@ if __name__ == "__main__":
     print(compressed)  # decompress
     print("original and decompressed are the same: {}".format(original ==
      compressed.decompress()))
-copy
+```
 利用 sys.getsizeof() 方法，输出结果时就能显示出来，通过该压缩方案确实节省了基因数据大约 75% 的内存开销：
-
+```
 original is 8649 bytes
 compressed is 2320 bytes
 TAGGGATTAACC…
 original and decompressed are the same: True
-copy
-注意：在 CompressedGene 类中，为了判断压缩方法和解压方法中的一系列条件，大量采用了 if 语句。因为 Python 没有 switch 语句，所以这种情况有点儿普遍。在 Python 中有时还会出现一种情况，就是高度依靠字典对象来代替大量的 if 语句，以便对一系列的条件做出处理。不妨想象一下，可以用字典对象来找出每个核苷酸对应的二进制位形式。有时字典方案的可读性会更好，但可能会带来一定的性能开销。尽管查找字典在技术上的复杂度为 O(1)，但运行哈希函数存在开销，这有时会意味着字典的性能还不如一串 if。是否采用字典，取决于具体的 if 语句做判断时需要进行什么计算。如果在关键代码段中要在多个 if 和查找字典中做出取舍，或许该分别对这两种方法运行一次性能测试。
+```
+注意：在 CompressedGene 类中，为了判断压缩方法和解压方法中的一系列条件，大量采用了 if 语句。
+因为 Python 没有 switch 语句，所以这种情况有点儿普遍。在 Python 中有时还会出现一种情况，
+就是高度依靠字典对象来代替大量的 if 语句，以便对一系列的条件做出处理。不妨想象一下，可以
+用字典对象来找出每个核苷酸对应的二进制位形式。有时字典方案的可读性会更好，但可能会带来一
+定的性能开销。尽管查找字典在技术上的复杂度为 O(1)，但运行哈希函数存在开销，这有时会意
+味着字典的性能还不如一串 if。是否采用字典，取决于具体的 if 语句做判断时需要进行什么
+计算。如果在关键代码段中要在多个 if 和查找字典中做出取舍，或许该分别对这两种方法
+运行一次性能测试。
+
+
+### 牢不可破的加密方案
+
+一次性密码本（one-time pad）是一种加密数据的方法，它将无意义的随机的假数据（dummy data）混入数据中，这样在无法同时拿到加密结果和假数据的情况下就不能重建原始数据。这实质上是给加密程序配上了密钥对。其中一个密钥是加密结果，另一个密钥则是随机的假数据。单个密钥是没有用的，只有两个密钥的组合才能解密出原始数据。只要运行无误，一次性密码本就是一种无法破解的加密方案。
+
+以下示例将用一次性密码本方案加密一个 srt。Python 3 的 str 类型有一种用法可被视为 UTF-8 字节序列（UTF-8 是一种 Unicode 字符编码）。通过 encode() 方法可将 str 转换为 UTF-8 字节序列（以 bytes 类型表示）。同理，用 bytes 类型的 decode() 方法可将 UTF-8 字节序列转换回 str。一次性密码本的加密操作中用到的假数据必须符合 3 条标准，这样最终的结果才不会被破解。假数据必须与原始数据长度相同、真正随机、完全保密。第 1 条标准和第 3 条标准是常识。如果假数据因为太短而出现重复，就有可能被觉察到规律。如果其一个密钥不完全保密（可能在其他地方被重复使用或部分泄露），那么攻击者就能获得一条线索。第 2 条标准给自己出了一道难题：能否生成真正随机的数据？大多数计算机的答案都是否定的。本例将会用到 secrets 模块的伪随机数据来生成函数 token_ bytes()（自 Python 3.6 开始包含在于标准库中）。这里的数据并非是真正随机的，因为 secrets 包在幕后采用的仍然是伪随机数生成器，但它已足够接近目标了。下面就来生成一个用作假数据的随机密钥：
+
+```Python
+from secrets import token_bytes
+from typing import Tuple
+
+def random_key(length: int) -> int:
+    # generate length random bytes
+    tb: bytes = token_bytes(length)
+    # convert those bytes into a bit string and return it
+    return int.from_bytes(tb, "big")
+```
+以上函数将创建一个长度为 length 字节的 int，其中填充的数据是随机生成的。int. from_bytes() 方法用于将 bytes 转换为 int。如何将多字节数据转换为单个整数呢？答案就在 1.2 节。在 1.2 节中已经介绍过 int 类型可为任意大小，而且还展示了 int 能被当作通用的位串来使用。本节以同样的方式使用 int。例如，from_bytes() 方法的参数是 7 字节（7 字节 ×8 位/字节= 56 位），该方法会将这个参数转换为 56 位的整数。为什么这种方式很有用呢？因为与对序列中的多字节进行操作相比，对单个 int（读作“长位串”）进行位操作将更加简单高效。下面将会用到 XOR 位运算。
+
+[图1-6 一次性密码本身会产生两个秘钥,它们可以分开存放,后续可以再组合起来以重建原始数据](https://doc.shiyanlou.com/courses/2654/484222/05eeb1160026c79d73bde325ddc9ef0c-0)
+
+![图1-6 一次性密码本身会产生两个秘钥,它们可以分开存放,后续可以再组合起来以重建原始数据](https://doc.shiyanlou.com/courses/2654/484222/05eeb1160026c79d73bde325ddc9ef0c-0)
+如何将假数据与待加密的原始数据进行合并呢？这里将用 XOR 操作来完成。XOR 是一种逻辑位操作（二进制位级别的操作），当其中一个操作数为真时返回 true，而如果两个操作数都为真或都不为真则返回 false。可能大家都已猜到了，XOR 代表“异或”。
+Python 中的 XOR 操作符是“^”。在二进制位的上下文中，0^1 和 1^0 将返回 1，而 0^0 和 1^1 则会返回 0。如果用 XOR 合并两个数的二进制位，那么把结果数与其中某个操作数重新合并即可生成另一个操作数，这是一个很有用的特性。
+```
+A ^ B = C
+C ^ B = A
+C ^ A = B
+```
+上述重要发现构成了一次性密码本加密方案的基础。为了生成结果数据，只要简单地将原始 str 以字节形式表示的 int 与一个随机生成且位长相同的 int（由 random_key() 生成）进行异或操作即可。返回的密钥对就是假数据和加密结果。
+
+```python
+def encrypt(original: str) -> Tuple[int, int]:
+    original_bytes: bytes = original.encode()
+    dummy: int = random_key(len(original_bytes))
+    original_key: int = int.from_bytes(original_bytes, "big")
+    encrypted: int = original_key ^ dummy  # XOR
+    return dummy, encrypted
+```
+
+注意 int.from_bytes() 要传入两个参数。第一个参数是需要转换为 int 的 bytes。第二个参数是这些字节的字节序（endianness）"big"。字节序是指存储数据所用的字节顺序。首先读到的是最高有效字节（most significant byte），还是最低有效字节（least significant byte）？在本示例中，只要加密和解密时采用相同的顺序就无所谓，因为实际只会在单个二进制位级别操作数据。如果是在编码过程的两端不全由自己掌控的其他场合，字节序可能是至关重要的因素，所以请务必小心！
+
+解密过程只是将 encrypt() 生成的密钥对重新合并而已。只要在两个密钥的每个二进制位之间再次执行一次 XOR 运算，就可完成解密任务了。最终的输出结果必须转换回 str。首先，用 int.to_bytes() 将 int 转换为 bytes。该方法需要给定 int 要转换的字节数。只要把总位长除以 8（每字节的位数），就能获得该字节数。最后，用 bytes 类型的 decode() 方法即可返回一个 str：
+
+```
+def decrypt(key1: int, key2: int) -> str:
+    decrypted: int = key1 ^ key2  # XOR
+    temp: bytes = decrypted.to_bytes((decrypted.bit_length()+ 7) // 8, "big")
+    return temp.decode()
+```
+在用整除操作（//）除以 8 之前，必须给解密数据的长度加上 7，以确保能“向上舍入”，避免出现边界差一（off-by-one）错误。如果上述一次性密码本的加密过程确实有效，那么应该就能毫无问题地加密和解密 Unicode 字符串了：
+```
+if __name__ == "__main__":
+    key1, key2 = encrypt("One Time Pad!")
+    result: str = decrypt(key1, key2)
+    print(result)
+
+```
+
+如果控制台输出了“One Time Pad!”，就万事大吉了。
+
